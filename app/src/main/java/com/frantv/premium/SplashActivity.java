@@ -4,6 +4,8 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 
 /** Presentacion que sale siempre al entrar a la app. */
 public class SplashActivity extends Activity {
+    private MediaPlayer sound;
     private final Handler h = new Handler(Looper.getMainLooper());
     private final Runnable go = new Runnable() {
         @Override
@@ -69,6 +72,39 @@ public class SplashActivity extends Activity {
         pulse(ring2, 1500);
 
         h.postDelayed(go, 3600);
+        playSound();
+    }
+
+    /** Sonido de la presentacion (no altera su duracion). */
+    private void playSound() {
+        try {
+            sound = MediaPlayer.create(this, R.raw.logo_audio,
+                    new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(),
+                    android.media.AudioManager.AUDIO_SESSION_ID_GENERATE);
+            if (sound != null) {
+                sound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        releaseSound();
+                    }
+                });
+                sound.start();
+            }
+        } catch (Exception ignored) {
+            releaseSound();
+        }
+    }
+
+    private void releaseSound() {
+        if (sound != null) {
+            try {
+                sound.release();
+            } catch (Exception ignored) {
+            }
+            sound = null;
+        }
     }
 
     private void pulse(final View v, long delay) {
@@ -92,6 +128,7 @@ public class SplashActivity extends Activity {
     @Override
     protected void onDestroy() {
         h.removeCallbacks(go);
+        releaseSound();
         super.onDestroy();
     }
 }
