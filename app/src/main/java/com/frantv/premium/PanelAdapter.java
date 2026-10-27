@@ -61,12 +61,7 @@ public class PanelAdapter extends RecyclerView.Adapter<PanelAdapter.VH> {
         h.itemView.setSelected(cur);
         h.star.setImageResource(Repo.isFav(c.id) ? R.drawable.ic_star_gold : R.drawable.ic_star_outline);
         h.star.setAlpha(Repo.isFav(c.id) ? 1f : 0.55f);
-        if (c.logo == null || c.logo.isEmpty()) {
-            Glide.with(h.logo).clear(h.logo);
-            h.logo.setImageDrawable(new InitialsDrawable(c));
-        } else {
-            Glide.with(h.logo).load(c.logo).error(new InitialsDrawable(c)).fitCenter().into(h.logo);
-        }
+        Util.loadLogo(h.logo, c);
     }
 
     @Override
@@ -77,6 +72,7 @@ public class PanelAdapter extends RecyclerView.Adapter<PanelAdapter.VH> {
     @Override
     public void onViewRecycled(@NonNull VH h) {
         Glide.with(h.logo).clear(h.logo);
+        h.logo.setBackground(null);
     }
 
     class VH extends RecyclerView.ViewHolder {

@@ -57,12 +57,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.VH> {
         h.num.setText(String.format(Locale.US, "%03d", position + 1));
         h.name.setText(c.name);
         h.star.setVisibility(Repo.isFav(c.id) ? View.VISIBLE : View.GONE);
-        if (c.logo == null || c.logo.isEmpty()) {
-            Glide.with(h.logo).clear(h.logo);
-            h.logo.setImageDrawable(new InitialsDrawable(c));
-        } else {
-            Glide.with(h.logo).load(c.logo).error(new InitialsDrawable(c)).fitCenter().into(h.logo);
-        }
+        Util.loadLogo(h.logo, c);
     }
 
     @Override
@@ -73,6 +68,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.VH> {
     @Override
     public void onViewRecycled(@NonNull VH h) {
         Glide.with(h.logo).clear(h.logo);
+        h.logo.setBackground(null);
     }
 
     class VH extends RecyclerView.ViewHolder {

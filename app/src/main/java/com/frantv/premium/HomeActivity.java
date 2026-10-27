@@ -20,6 +20,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,6 +42,8 @@ public class HomeActivity extends Activity {
     private LinearLayout nav;
     private TextView heroLine1, heroLine2, heroSub, clock, empty, loadingText;
     private View hero, searchBar, loading;
+    private ImageView heroImage;
+    private int heroResShown = 0;
     private EditText searchInput;
 
     private String currentKey = Repo.KEY_ALL;
@@ -74,6 +79,7 @@ public class HomeActivity extends Activity {
         clock = findViewById(R.id.clock);
         empty = findViewById(R.id.emptyView);
         hero = findViewById(R.id.hero);
+        heroImage = findViewById(R.id.heroImage);
         searchBar = findViewById(R.id.searchBar);
         searchInput = findViewById(R.id.searchInput);
         loading = findViewById(R.id.loading);
@@ -366,6 +372,16 @@ public class HomeActivity extends Activity {
         heroLine1.setText(t[0]);
         heroLine2.setText(t[1]);
         heroSub.setText(t[2]);
+        int res = Util.heroRes(key);
+        if (res != heroResShown && !isDestroyed()) {
+            boolean first = heroResShown == 0;
+            heroResShown = res;
+            if (first) {
+                heroImage.setImageResource(res);
+            } else {
+                Glide.with(this).load(res).transition(DrawableTransitionOptions.withCrossFade(450)).into(heroImage);
+            }
+        }
     }
 
     private void updateEmpty() {
