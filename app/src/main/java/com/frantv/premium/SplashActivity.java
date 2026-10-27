@@ -90,6 +90,7 @@ public class SplashActivity extends Activity {
                         releaseSound();
                     }
                 });
+                sound.setVolume(0.6f, 0.6f);
                 sound.start();
             }
         } catch (Exception ignored) {
