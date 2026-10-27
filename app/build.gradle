@@ -2,6 +2,9 @@ plugins {
     id 'com.android.application'
 }
 
+def appVerCode = Integer.parseInt((project.findProperty('verCode') ?: '1').toString())
+def appVerName = (project.findProperty('verName') ?: '1.0.0').toString()
+
 android {
     namespace 'com.frantv.premium'
     compileSdk 34
@@ -10,8 +13,8 @@ android {
         applicationId 'com.frantv.premium'
         minSdk 21
         targetSdk 34
-        versionCode (project.findProperty('verCode') ?: '1').toInteger()
-        versionName (project.findProperty('verName') ?: '1.0.0')
+        versionCode appVerCode
+        versionName appVerName
     }
 
     signingConfigs {
