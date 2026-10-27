@@ -1,0 +1,79 @@
+name: Build Fran TV
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'FranTV.apk'
+      - 'update.json'
+      - 'build-log.txt'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-frantv
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Compilar y firmar
+        id: build
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          gradle assembleRelease -PverCode=${{ github.run_number }} -PverName=1.0.${{ github.run_number }} --stacktrace --no-daemon 2>&1 | tee full-log.txt
+
+      - name: Publicar resultado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ "${{ steps.build.outcome }}" = "success" ]; then
+            cp app/build/outputs/apk/release/app-release.apk FranTV.apk
+            printf '{\n  "versionCode": %s,\n  "versionName": "%s",\n  "apkUrl": "%s",\n  "notes": "%s"\n}\n' \
+              "${{ github.run_number }}" "1.0.${{ github.run_number }}" \
+              "https://raw.githubusercontent.com/Fravier3/FranClaudeTv/main/FranTV.apk" \
+              "Mejoras y correcciones." > update.json
+            echo "BUILD OK ${{ github.run_number }} $(date -u)" > build-log.txt
+            git add FranTV.apk update.json build-log.txt
+          else
+            {
+              echo "BUILD FAILED run ${{ github.run_number }}"
+              grep -n -A12 -E "error:|e: |FAILED|What went wrong|AAPT|Caused by|Could not" full-log.txt | head -300
+              echo "-----TAIL-----"
+              tail -n 80 full-log.txt
+            } > build-log.txt
+            git add build-log.txt
+          fi
+          git commit -m "Resultado del build ${{ github.run_number }}" || true
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && break
+            sleep 3
+          done
+
+      - name: Crear release
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v1.0.${{ github.run_number }}" FranTV.apk --title "Fran TV 1.0.${{ github.run_number }}" --notes "Fran TV" --latest
+
+      - name: Marcar fallo
+        if: steps.build.outcome != 'success'
+        run: exit 1

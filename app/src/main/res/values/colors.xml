@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_deep">#030818</color>
+    <color name="bg_mid">#071230</color>
+    <color name="surface">#0E1B3D</color>
+    <color name="surface_focus">#14327A</color>
+    <color name="stroke">#1F3A70</color>
+    <color name="accent">#22D3EE</color>
+    <color name="accent_blue">#2F6BFF</color>
+    <color name="text_main">#FFFFFF</color>
+    <color name="text_dim">#9DB4DE</color>
+    <color name="live_red">#EF4444</color>
+    <color name="star">#FACC15</color>
+</resources>
